@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial.distance import cdist
-
+from sklearn.neighbors import NearestNeighbors, KNeighborsClassifier
 
 class RelevantPatternSelection:
     def __init__(self, k):
@@ -105,4 +105,27 @@ class LinearBoundaryDiscriminantAnalysis:
         transformation_matrix = eigvecs[:, np.argsort(eigvals)[-numfeature:]]
 
         return transformation_matrix
+
+def train_and_evaluate_nn_classifier(
+        data, label, transformation_matrix=None, cross_validation='LOO'
+    ):
+    if transformation_matrix is not None:
+        projected_data = np.matmul(data, transformation_matrix)
+    else:
+        projected_data = data
+    correct_count = 0
+    if cross_validation == 'LOO':
+        datanum = projected_data.shape[0]
+        for i in range(datanum):
+            data_in_use = np.delete(projected_data, i, 0)
+            label_in_use = np.delete(label, i, 0)
+            data_evaluate = projected_data[i]
+            label_evaluate = label[i]
+            classifier = KNeighborsClassifier(n_neighbors=1)
+            classifier.fit(data_in_use, label_in_use)
+            correct_count += classifier.score(
+                np.array([data_evaluate]), np.array([label_evaluate])
+            )
+        return correct_count / datanum
+
 
