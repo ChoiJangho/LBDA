@@ -39,8 +39,12 @@ class RelevantPatternSelection:
                     if any(class_list==j) else 1
         proximity_k = np.sum(- p * np.log(p) / np.log(numclass), axis = 0)
         data_non_boundary = data[proximity_k < threshold]
-        data_boundary = data[proximity_k > threshold]
-        return data_non_boundary, data_boundary
+        label_non_boundary = label[proximity_k < threshold]
+        data_boundary = data[proximity_k >= threshold]
+        label_boundary = label[proximity_k >= threshold]
+
+        return data_non_boundary, label_non_boundary,\
+            data_boundary, label_boundary
 
 
 class LinearBoundaryDiscriminantAnalysis:
@@ -60,7 +64,7 @@ class LinearBoundaryDiscriminantAnalysis:
         numdata = np.shape(data)[0]
         dim = np.shape(data)[1]
         # Get non-boundary and boundary data from Relevant Pattern Selection.
-        X_non_boundary, X_boundary = self._RPS.run(data, label, numclass)
+        X_non_boundary, _, X_boundary, _ = self._RPS.run(data, label, numclass)
 
         n_NB = np.shape(X_non_boundary)[0]
         n_B = np.shape(X_boundary)[0]
