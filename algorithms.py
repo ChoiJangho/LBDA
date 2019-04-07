@@ -95,7 +95,10 @@ class LinearBoundaryDiscriminantAnalysis:
             )
 
         if np.linalg.det(S_within) == 0:
-            raise Exception("Within Scatter Matrix is singular.")
+            print("Within Scatter Matrix is regularized to avoid singularity.")
+            # Regularization
+            alpha = 0.001
+            S_within = S_within + alpha * np.identity(dim)
 
         eigvals, eigvecs = np.linalg.eig(np.matmul(np.linalg.inv(S_within), S_between))
 
